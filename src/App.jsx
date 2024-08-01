@@ -43,18 +43,18 @@ function App() {
         {loadingMessage && <p>{loadingMessage}</p>}
         {loadingMessageError && <p>{loadingMessageError}</p>}
 
-        <UploadFromWebcam
-          addFacePhotoCallback={addFacePhotoCallback}
-          galleryRefetch={galleryRefetch}
-          countRefetch={countRefetch}
-          loading={loading}
-        />
-        {/* <UploadFromDisk
+        {/* <UploadFromWebcam
           addFacePhotoCallback={addFacePhotoCallback}
           galleryRefetch={galleryRefetch}
           countRefetch={countRefetch}
           loading={loading}
         /> */}
+        <UploadFromDisk
+          addFacePhotoCallback={addFacePhotoCallback}
+          galleryRefetch={``}
+          countRefetch={countRefetch}
+          loading={loading}
+        />
       </div>
     </>
   );

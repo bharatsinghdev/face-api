@@ -1,31 +1,14 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Card, Form, Layout, message, Select, Switch, Typography } from "antd";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Footer,
-  Greeting,
-  Navbar,
-  PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { AuthContext, FaceThresholdDistanceContext } from "../../../context";
-import { createMatcher } from "../../../faceUtil";
-import { attendanceMode, DEFAULT_ATTENDANCE_MODE } from "../../../globalData";
-import {
-  EDIT_ATTENDANCE_MODE_MUTATION,
-  EDIT_ATTENDANCE_ON_OFF_MUTATION,
-} from "../../../graphql/mutation";
-import {
-  FETCH_ATTENDANCE_QUERY,
-  FETCH_FACE_MATCHER_IN_COURSE_QUERY,
-} from "../../../graphql/query";
-import { CheckError } from "../../../utils/ErrorHandling";
-import { LoadingSpin } from "../../../utils/LoadingSpin";
-import ProcessFaceRecognition from "./ProcessFaceRecognition";
-import TrxDashboard from "./TrxDashboard";
 
-const { Option } = Select;
-const { Title } = Typography;
+import { AuthContext, FaceThresholdDistanceContext } from "../context";
+import { createMatcher } from "../faceUtil";
+import { attendanceMode, DEFAULT_ATTENDANCE_MODE } from "../globalData";
+
+import { CheckError } from "../utils/ErrorHandling";
+import ProcessFaceRecognition from "./ProcessFaceRecognition";
+
 export default (props) => {
   const { user } = useContext(AuthContext);
   const { threshold, setFaceThresholdDistance } = useContext(
@@ -67,7 +50,7 @@ export default (props) => {
       });
 
       if (data.getFaceMatcherInCourse.matcher.length === 0) {
-        message.info("Course do not have any participant yet!");
+        alert("Course do not have any participant yet!");
       }
     }
   }, [data, participants]);
@@ -88,19 +71,15 @@ export default (props) => {
   useEffect(() => {
     if (attendanceGQLQuery.data) {
       setMode(attendanceGQLQuery.data.getAttendance.mode);
-      message.info(
-        "Attendance Mode: " + attendanceGQLQuery.data.getAttendance.mode
-      );
+      alert("Attendance Mode: " + attendanceGQLQuery.data.getAttendance.mode);
       setIsOn(attendanceGQLQuery.data.getAttendance.isOn);
       if (attendanceGQLQuery.data.getAttendance.isOn)
-        message.info("Attendance is currently opened");
+        alert("Attendance is currently opened");
       else {
         if (user.userLevel == 0)
-          message.info("Attendance had been closed by the host.");
+          alert("Attendance had been closed by the host.");
         else {
-          message.info(
-            "You closed the attendance, no transaction will be recorded"
-          );
+          alert("You closed the attendance, no transaction will be recorded");
         }
       }
     }
@@ -130,7 +109,7 @@ export default (props) => {
     {
       onCompleted: async (data) => {
         setMode(data.editAttendanceMode.mode);
-        message.success(`Set Mode To ${data.editAttendanceMode.mode}`);
+        alert(`Set Mode To ${data.editAttendanceMode.mode}`);
       },
       onError(err) {
         CheckError(err);
@@ -143,7 +122,7 @@ export default (props) => {
     {
       onCompleted: async (data) => {
         setIsOn(data.editAttendanceOnOff.isOn);
-        message.success(
+        alert(
           `Attendance is ${data.editAttendanceOnOff.isOn == 1 ? " on" : " off"}`
         );
       },
@@ -171,121 +150,72 @@ export default (props) => {
     });
   };
 
-  const titleList = [
-    { name: "Home", link: "/dashboard" },
-    {
-      name: `Course: ${props.match.params.courseID}`,
-      link: `/course/${props.match.params.courseID}`,
-    },
-    {
-      name: `Attendance List`,
-      link: `/course/${props.match.params.courseID}/attendanceList`,
-    },
-    {
-      name: `Attendance Room: ${props.match.params.attendanceID}`,
-      link: `/course/${props.match.params.courseID}/attendanceRoom/${props.match.params.attendanceID}`,
-    },
-  ];
-  const { Content } = Layout;
-
   return (
-    <Layout className="layout">
-      <Navbar />
-      <Layout>
-        <Greeting />
-        <PageTitleBreadcrumb titleList={titleList} />
-        <Content>
-          <Card
-            title={
-              mode == "F2F" ? (
-                <Title level={4}>F2F Attendance</Title>
-              ) : (
-                <Title level={4}>Remote Attendance</Title>
-              )
-            }
-          >
-            {data && (
-              <Title level={4}>
-                Course:{" "}
-                {course.code + "-" + course.name + "(" + course.session + ")"}
-              </Title>
-            )}
-          </Card>
+    <>
+      <div
+        title={
+          mode == "F2F" ? (
+            <span level={4}>F2F Attendance</span>
+          ) : (
+            <span level={4}>Remote Attendance</span>
+          )
+        }
+      >
+        {data && (
+          <span level={4}>
+            Course:{" "}
+            {course.code + "-" + course.name + "(" + course.session + ")"}
+          </span>
+        )}
+      </div>
 
-          {user.userLevel == 1 && (
-            <Card title={<Title level={4}>Attendance Setting</Title>}>
-              <Form>
-                <Form.Item label="Mode">
-                  {editAttendanceModeStatus.loading ? (
-                    <LoadingOutlined
-                      style={{ fontSize: "25px", color: "blue" }}
-                    />
-                  ) : (
-                    <Select value={mode} onChange={handleModeChange}>
-                      {attendanceMode.map((mode) => (
-                        <Option key={mode} value={mode}>
-                          {mode}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                </Form.Item>
-                <Form.Item label="Open">
-                  {editAttendanceOnOffStatus.loading ? (
-                    <LoadingOutlined
-                      style={{ fontSize: "25px", color: "blue" }}
-                    />
-                  ) : (
-                    <>
-                      <Switch onChange={handleIsOnChange} checked={isOn} />
-                      {isOn
-                        ? " (Attendance transaction activate)"
-                        : " (Attendance transaction deactivate)"}
-                    </>
-                  )}
-                </Form.Item>
-              </Form>
-            </Card>
+      {user.userLevel == 1 && (
+        <div title={<Title level={4}>Attendance Setting</Title>}>
+          {editAttendanceModeStatus.loading ? (
+            <span></span>
+          ) : (
+            <select value={mode} onChange={handleModeChange}>
+              {attendanceMode.map((mode) => (
+                <option key={mode} value={mode}>
+                  {mode}
+                </option>
+              ))}
+            </select>
           )}
 
-          {/* For F2F, use Lecturer PC For FR */}
-          {attendanceGQLQuery.data &&
-            isOn &&
-            mode == "F2F" &&
-            user.userLevel == 1 && (
-              <ProcessFaceRecognition
-                {...props}
-                faceMatcher={faceMatcher}
-                facePhotos={facePhotos}
-                participants={participants}
-              />
-            )}
-          {/* For Remote, use Student PC For FR */}
-
-          {attendanceGQLQuery.data &&
-            isOn &&
-            mode == "Remote" &&
-            user.userLevel == 0 && (
-              <ProcessFaceRecognition
-                {...props}
-                faceMatcher={faceMatcher}
-                facePhotos={facePhotos}
-                participants={participants}
-              />
-            )}
-
-          {!isOn && user.userLevel == 0 && (
-            <Card>
-              <p>The host has closed the attendance</p>
-            </Card>
+          {editAttendanceOnOffStatus.loading ? (
+            <div>Loading Attendence</div>
+          ) : (
+            <div>dsfdfsgfd</div>
           )}
+        </div>
+      )}
 
-          <LoadingSpin loading={attendanceGQLQuery.loading} />
-          <TrxDashboard {...props} participants={participants} />
-        </Content>
+      {/* For F2F, use Lecturer PC For FR */}
+      {attendanceGQLQuery.data &&
+        isOn &&
+        mode == "F2F" &&
+        user.userLevel == 1 && (
+          <ProcessFaceRecognition
+            {...props}
+            faceMatcher={faceMatcher}
+            facePhotos={facePhotos}
+            participants={participants}
+          />
+        )}
+      {/* For Remote, use Student PC For FR */}
 
-        <Footer />
-      </Layout>
-    </Layout>
+      {attendanceGQLQuery.data &&
+        isOn &&
+        mode == "Remote" &&
+        user.userLevel == 0 && (
+          <ProcessFaceRecognition
+            {...props}
+            faceMatcher={faceMatcher}
+            facePhotos={facePhotos}
+            participants={participants}
+          />
+        )}
+    </>
   );
 };

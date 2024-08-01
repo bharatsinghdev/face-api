@@ -4,16 +4,16 @@ export const drawRectAndLabelFace = (descriptions, faceDB, participants, ctx) =>
     descriptions.forEach((desc) => {
       // Extract boxes and classes
       const { x, y, width, height } = desc.detection.box;
-      const landmarksPoint=desc.landmarks._positions;
- 
+      const landmarksPoint = desc.landmarks._positions;
+
       // const text = desc['class'];
       const bestMatch = faceDB.findBestMatch(desc.descriptor);
       // Set styling
       if (bestMatch._label != "unknown") {
         let filterParticipants = participants.filter(
           (participant) => participant.student._id == bestMatch._label
-        ); 
-        bestMatch._label = filterParticipants[0].student.firstName +" "+ filterParticipants[0].student.lastName + " (" + filterParticipants[0].student.cardID + ")";
+        );
+        bestMatch._label = filterParticipants[0].student.firstName + " " + filterParticipants[0].student.lastName + " (" + filterParticipants[0].student.cardID + ")";
       }
 
       ctx.font = "normal 18px Gotham, Helvetica Neue, sans-serif";
@@ -21,7 +21,7 @@ export const drawRectAndLabelFace = (descriptions, faceDB, participants, ctx) =>
       ctx.strokeStyle = bestMatch._label == "unknown" ? "#E00" : "#0E0";
 
       //draw 68 points
-      landmarksPoint.map(point=>{
+      landmarksPoint.map(point => {
         ctx.beginPath();
         ctx.fillText(bestMatch._label, x, y + height + 20);
         ctx.fillStyle = bestMatch._label == "unknown" ? "#E00" : "#0E0";
@@ -30,7 +30,7 @@ export const drawRectAndLabelFace = (descriptions, faceDB, participants, ctx) =>
 
         ctx.fill();
       })
-    
+
 
       // Draw rectangles and text
       ctx.beginPath();
