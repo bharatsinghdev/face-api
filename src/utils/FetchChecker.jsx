@@ -1,7 +1,5 @@
 //This is a helper function to conditionally determine the fetch status
 
-import { LoadingOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
 import React from 'react';
 
 export const FetchChecker = ({
@@ -15,10 +13,10 @@ export const FetchChecker = ({
   return (
     <div>
       {payload.length > 0 && !fetchedDone && (
-        <Button onClick={handleFetchMore} disabled={loading}>
+        <button onClick={handleFetchMore} disabled={loading}>
           Load More
-          {loading ? <LoadingOutlined /> : null}
-        </Button>
+          {loading ? <p>loading</p> : null}
+        </button>
       )}
 
       {!loading && payload?.length !== 0 && fetchedDone && (

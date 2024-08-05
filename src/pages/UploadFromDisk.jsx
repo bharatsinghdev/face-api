@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CheckError } from "../utils/ErrorHandling";
 import { getFullFaceDescription } from "../faceUtil";
 import { inputSize } from "../globalData";
+import faceApi from "../api/api";
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -26,6 +27,10 @@ export const UploadFromDisk = ({
   const [isRunningFaceDetector, setIsRunningFaceDetector] = useState(false);
   const [detectionCount, setDetectionCount] = useState(0);
 
+  // Form
+  const [name, setName] = useState("");
+  const [file, setFile] = useState(null);
+
   const [fileList, setFileList] = useState([]);
   const handleCancel = () => setPreviewVisible(false);
 
@@ -39,7 +44,7 @@ export const UploadFromDisk = ({
   const handleChange = async (e) => {
     let file = e.target.files[0];
     let blob = await getBase64(file);
-
+    setFile(file);
     if (file) {
       setPreviewImage(blob);
       setIsRunningFaceDetector(true);
@@ -82,21 +87,16 @@ export const UploadFromDisk = ({
   };
 
   const handleSubmit = () => {
-    if (previewImage.length > 0 && faceDescriptor.length === 128)
-      addFacePhotoCallback({
-        update(_, data) {
-          galleryRefetch();
-          countRefetch();
-          alert("Add Face Photo Success!");
-        },
-        onError(err) {
-          CheckError(err);
-        },
-        variables: {
-          photoData: previewImage,
-          faceDescriptor: faceDescriptor.toString(),
-        },
-      });
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("file", file);
+      formData.append("faceDescriptor", fullDesc[0].descriptor);
+      let { data } = faceApi.upload(formData);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <>
@@ -107,6 +107,14 @@ export const UploadFromDisk = ({
         // accept="image/x-png,image/jpeg"
         progress
       />
+      <input
+        type="text"
+        palceholder="Name"
+        onChange={(e) => setName(e.target.value)}
+      />
+      <button type="button" className="btn" onClick={handleSubmit}>
+        Save
+      </button>
       {loading && "LOADING ..........."}
       {fileList.length >= 1 ? null : (
         <div>

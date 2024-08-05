@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
 import {
   isFaceDetectionModelLoaded,
@@ -10,8 +9,11 @@ import {
 } from "./faceUtil";
 import { UploadFromWebcam } from "./pages/UploadFromWebcam";
 import { UploadFromDisk } from "./pages/UploadFromDisk";
+import FaceRecognition from "./pages/FaceRecognition";
+import { FaceThresholdDistanceProvider } from "./context";
 
 function App() {
+  const [type, setType] = useState("upload");
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loadingMessageError, setLoadingMessageError] = useState(null);
@@ -39,22 +41,43 @@ function App() {
   const countRefetch = () => {};
   return (
     <>
-      <div>
+      <div className="align-center">
         {loadingMessage && <p>{loadingMessage}</p>}
         {loadingMessageError && <p>{loadingMessageError}</p>}
 
-        {/* <UploadFromWebcam
-          addFacePhotoCallback={addFacePhotoCallback}
-          galleryRefetch={galleryRefetch}
-          countRefetch={countRefetch}
-          loading={loading}
-        /> */}
-        <UploadFromDisk
-          addFacePhotoCallback={addFacePhotoCallback}
-          galleryRefetch={``}
-          countRefetch={countRefetch}
-          loading={loading}
-        />
+        <div style={{ display: "flex" }}>
+          <button type="button" onClick={() => setType("upload")}>
+            Upload
+          </button>
+          <button type="button" onClick={() => setType("camera")}>
+            Camera
+          </button>
+          <button type="button" onClick={() => setType("detect")}>
+            Detect
+          </button>
+        </div>
+
+        {type == "camera" && (
+          <UploadFromWebcam
+            addFacePhotoCallback={addFacePhotoCallback}
+            galleryRefetch={galleryRefetch}
+            countRefetch={countRefetch}
+            loading={loading}
+          />
+        )}
+        {type == "upload" && (
+          <UploadFromDisk
+            addFacePhotoCallback={addFacePhotoCallback}
+            galleryRefetch={``}
+            countRefetch={countRefetch}
+            loading={loading}
+          />
+        )}
+        {type == "detect" && (
+          <FaceThresholdDistanceProvider>
+            <FaceRecognition />
+          </FaceThresholdDistanceProvider>
+        )}
       </div>
     </>
   );

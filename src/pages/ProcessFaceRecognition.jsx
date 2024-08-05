@@ -1,9 +1,7 @@
-import { useMutation } from "@apollo/react-hooks";
-import { Card, Form, Layout, message, Row, Select, Typography } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { FaceThresholdDistanceContext } from "../context";
-import { CheckError } from "../utils/ErrorHandling";
+
 import {
   getFullFaceDescription,
   isFaceDetectionModelLoaded,
@@ -16,22 +14,19 @@ import {
   inputSize,
   webcamResolutionType,
 } from "../globalData";
-import { CREATE_TRX_MUTATION } from "../graphql/mutation";
 import { drawRectAndLabelFace } from "../utils/drawRectAndLabelFace";
 import ModelLoading from "../utils/ModelLoading";
 import ModelLoadStatus from "../utils/ModelLoadStatus";
-
-const { Title } = Typography;
-const { Content } = Layout;
-const { Option } = Select;
 
 export default (props) => {
   const { participants, faceMatcher, facePhotos } = props;
 
   const { threshold } = useContext(FaceThresholdDistanceContext);
 
+  const fileRef = useRef();
   const webcamRef = useRef();
   const canvasRef = useRef();
+  const [isMatched, setIsMatched] = useState(true);
 
   const [selectedWebcam, setSelectedWebcam] = useState();
 
@@ -44,15 +39,6 @@ export default (props) => {
   const [loadingMessageError, setLoadingMessageError] = useState("");
   const [fullDesc, setFullDesc] = useState(null);
   const [waitText, setWaitText] = useState("");
-
-  const [createTrxCallback] = useMutation(CREATE_TRX_MUTATION, {
-    update(_, { data }) {
-      if (data.createTrx != "") message.success(data.createTrx);
-    },
-    onError(err) {
-      CheckError(err);
-    },
-  });
 
   useEffect(() => {
     async function loadingtheModel() {
@@ -79,63 +65,63 @@ export default (props) => {
     });
   }, []);
 
-  useEffect(() => {
-    function capture() {
-      if (
-        typeof webcamRef.current !== "undefined" &&
-        webcamRef.current !== null &&
-        webcamRef.current.video.readyState === 4
-      ) {
-        const videoWidth = webcamRef.current.video.videoWidth;
-        const videoHeight = webcamRef.current.video.videoHeight;
+  // useEffect(() => {
+  //   function capture() {
+  //     if (
+  //       typeof webcamRef.current !== "undefined" &&
+  //       webcamRef.current !== null &&
+  //       webcamRef.current.video.readyState === 4
+  //     ) {
+  //       const videoWidth = webcamRef.current.video.videoWidth;
+  //       const videoHeight = webcamRef.current.video.videoHeight;
 
-        // Set canvas height and width
-        canvasRef.current.width = videoWidth;
-        canvasRef.current.height = videoHeight;
+  //       // Set canvas height and width
+  //       canvasRef.current.width = videoWidth;
+  //       canvasRef.current.height = videoHeight;
 
-        // 4. TODO - Make Detections
-        // e.g. const obj = await net.detect(video);
+  //       // 4. TODO - Make Detections
+  //       // e.g. const obj = await net.detect(video);
 
-        // Draw mesh
-        getFullFaceDescription(webcamRef.current.getScreenshot(), inputSize)
-          .then((data) => {
-            setFullDesc(data);
-            setWaitText("");
-          })
-          .catch((err) => {
-            setWaitText(
-              "Preparing face matcher and device setup, please wait..."
-            );
-          });
-        const ctx = canvasRef.current.getContext("2d");
+  //       // Draw mesh
+  //       getFullFaceDescription(webcamRef.current.getScreenshot(), inputSize)
+  //         .then((data) => {
+  //           setFullDesc(data);
+  //           setWaitText("");
+  //         })
+  //         .catch((err) => {
+  //           setWaitText(
+  //             "Preparing face matcher and device setup, please wait..."
+  //           );
+  //         });
+  //       const ctx = canvasRef.current.getContext("2d");
 
-        drawRectAndLabelFace(fullDesc, faceMatcher, participants, ctx);
+  //       drawRectAndLabelFace(fullDesc, faceMatcher, participants, ctx);
 
-        if (!!fullDesc) {
-          console.log("Now got full desc");
-          fullDesc.map((desc) => {
-            const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
-            console.log(bestMatch);
-            if (bestMatch._label != "unknown") {
-              createTrxCallback({
-                variables: {
-                  attendanceID: props.match.params.attendanceID,
-                  studentID: bestMatch._label,
-                },
-              });
-              console.log("Saving in db now");
-            }
-          });
-        }
-      }
-    }
+  //       if (!!fullDesc) {
+  //         console.log("Now got full desc");
+  //         fullDesc.map((desc) => {
+  //           const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
+  //           console.log(bestMatch);
+  //           if (bestMatch._label != "unknown") {
+  //             createTrxCallback({
+  //               variables: {
+  //                 attendanceID: props.match.params.attendanceID,
+  //                 studentID: bestMatch._label,
+  //               },
+  //             });
+  //             console.log("Saving in db now");
+  //           }
+  //         });
+  //       }
+  //     }
+  //   }
 
-    let interval = setInterval(() => {
-      capture();
-    }, 700);
+  //   let interval = setInterval(() => {
+  //     capture();
+  //   }, 700);
 
-    return () => clearInterval(interval);
-  });
+  //   return () => clearInterval(interval);
+  // });
 
   const handleSelectWebcam = (value) => {
     setSelectedWebcam(value);
@@ -148,6 +134,65 @@ export default (props) => {
         setCamHeight(type.height);
       }
     });
+  };
+
+  const fileHandler = () => {
+    var img = new Image();
+    img.onload = draw;
+    img.onerror = failed;
+    img.src = URL.createObjectURL(fileRef.current.files[0]);
+  };
+
+  function draw() {
+    canvasRef.current.width = this.width;
+    canvasRef.current.height = this.height;
+    var ctx = canvasRef.current.getContext("2d");
+    ctx.drawImage(this, 0, 0);
+    capture();
+  }
+
+  const capture = async () => {
+    try {
+      const data = await getFullFaceDescription(
+        URL.createObjectURL(fileRef.current.files[0]),
+        inputSize
+      );
+      setFullDesc(data);
+      setWaitText("");
+
+      console.log("Face Descriptions:", data);
+
+      const ctx = canvasRef.current.getContext("2d");
+      drawRectAndLabelFace(data, faceMatcher, participants, ctx);
+
+      if (data) {
+        data.forEach((desc) => {
+          const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
+          console.log("Best Match:", bestMatch);
+        });
+      }
+    } catch (err) {
+      console.error("Error in capturing face description:", err);
+      setWaitText("Preparing face matcher and device setup, please wait...");
+    }
+  };
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      if (fullDesc && faceMatcher && isMatched) {
+        setIsMatched(false);
+        capture();
+      }
+      if (isMatched == false) {
+        clearInterval(interval);
+      }
+    }, 700);
+
+    return () => clearInterval(interval);
+  }, [fullDesc, faceMatcher]);
+
+  const failed = () => {
+    console.error("Failed to load image");
   };
 
   return (
@@ -164,7 +209,7 @@ export default (props) => {
         ))}
       </select>
 
-      <selec
+      <select
         defaultValue={DEFAULT_WEBCAM_RESOLUTION.label}
         style={{ width: 200 }}
         onChange={handleWebcamResolution}
@@ -174,7 +219,7 @@ export default (props) => {
             {type.label}
           </option>
         ))}
-      </selec>
+      </select>
 
       <div>
         <div>Face Descriptor Matcher: {facePhotos.length}</div>
@@ -193,7 +238,8 @@ export default (props) => {
       ) : (
         <div></div>
       )}
-
+      <input type="file" accept="image" ref={fileRef} />
+      <button onClick={fileHandler}>Check</button>
       {isAllModelLoaded && loadingMessageError.length == 0 && (
         <>
           <p>{waitText}</p>

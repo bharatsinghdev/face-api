@@ -22,10 +22,6 @@ const animate = () => {
 };
 
 const interval = setInterval(animate, intervalTime);
-// setTimeout(() => {
-//     clearInterval(interval);
-//     process.stdout.write('\n');
-// }, 5000);
 
 (async () => {
     try {

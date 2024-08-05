@@ -45,22 +45,26 @@ export async function getFullFaceDescription(blob, inputSize = 512) {
 
 export async function createMatcher(faceProfile, maxDescriptorDistance) {
     // Create labeled descriptors of member from profile
+    console.log(faceProfile, maxDescriptorDistance)
     let labeledDescriptors = faceProfile.map(
-        (profile) =>
-            new faceapi.LabeledFaceDescriptors(
-                profile.student._id,
-                profile.facePhotos.map(
-                    (photo) => new Float32Array(photo.faceDescriptor.match(/-?\d+(?:\.\d+)?/g).map(Number))
-                )
+        (profile) => {
+
+            let descriptior = new Float32Array(profile?.faceDescriptor?.match(/-?\d+(?:\.\d+)?/g).map(Number))
+            let label = new faceapi.LabeledFaceDescriptors(
+                profile.name,
+                [descriptior]
             )
+            return label
+        }
     );
 
-    // Create face matcher (maximum descriptor distance is 0.5)
+    if (labeledDescriptors.length == 0) return
+
     let faceMatcher = new faceapi.FaceMatcher(
         labeledDescriptors,
         maxDescriptorDistance
     );
-
+    console.log('label', faceMatcher)
     return faceMatcher;
 }
 

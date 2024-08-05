@@ -11,9 +11,10 @@ export const drawRectAndLabelFace = (descriptions, faceDB, participants, ctx) =>
       // Set styling
       if (bestMatch._label != "unknown") {
         let filterParticipants = participants.filter(
-          (participant) => participant.student._id == bestMatch._label
+          (participant) => participant.name == bestMatch._label
         );
-        bestMatch._label = filterParticipants[0].student.firstName + " " + filterParticipants[0].student.lastName + " (" + filterParticipants[0].student.cardID + ")";
+        console.log(filterParticipants)
+        bestMatch._label = bestMatch._label;
       }
 
       ctx.font = "normal 18px Gotham, Helvetica Neue, sans-serif";

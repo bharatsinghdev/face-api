@@ -5,17 +5,19 @@ const router = express.Router();
 
 
 router.get('/', async (req, res) => {
-    const faces = await FaceSchema.findById("66ab765816887efaab0e948f");
+    const faces = await FaceSchema.find({});
     res.json(faces)
 })
 
 
 //create
-router.post('/', upload.single('image'), async (req, res) => {
-    const file = req.files.pathname;
-    console.log(file)
-    const faces = await FaceSchema.create(req.body);
-    console.log(faces)
+router.post('/', upload.single('file'), async (req, res) => {
+
+    const faces = await FaceSchema.create({
+        name: req.body.name,
+        file: req.file.filename,
+        faceDescriptor: req.body.faceDescriptor
+    });
     res.json(faces)
 })
 module.exports = router
