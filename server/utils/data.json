@@ -1,0 +1,39 @@
+[{
+    position: 9,
+    title: "This Is How Ayesha Takia, Salman Khan's Co-Star In Wanted ...",
+    link: 'https://www.timesnownews.com/entertainment-news/bollywood/this-is-how-ayesha-takia-salman-khans-co-star-in-wanted-looks-now-watch-article-107754388',
+    redirect_link: 'https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.timesnownews.com/entertainment-news/bollywood/this-is-how-ayesha-takia-salman-khans-co-star-in-wanted-looks-now-watch-article-107754388&ved=2ahUKEwiApIPx5N-HAxWzJNAFHQprEUs4HhAWegQICBAB',
+    displayed_link: 'https://www.timesnownews.com › ... › Bollywood',
+    thumbnail: 'https://serpapi.com/searches/66b1c94b5c105935020f2486/images/cde150aa64d8b1e73d9bd065460e1a4877374ca36fd7c445b2b7d4e705e04338.jpeg',
+    favicon: 'https://serpapi.com/searches/66b1c94b5c105935020f2486/images/cde150aa64d8b1e73d9bd065460e1a4879dff6954101a48b.png',
+    date: 'Feb 16, 2024',
+    snippet: "Ayesha Takia, Salman Khan's co-star from the film Wanted, was spotted at the Mumbai International Airport with her son, causing a stir of ...",
+    snippet_highlighted_words: ["Salman Khan's"],
+    source: 'Times Now'
+}]
+
+
+{
+    asset_id: '673fa121b5f746e92610be4b76f2d7ce',
+    public_id: 'h2bbqvyjtoniuppiqlnn',
+    version: 1722928975,
+    version_id: '0eef48ceabdd6cf1f6e6e4672b2410f4',
+    signature: '8213bf29861ae071e3aafe31b8fd9b05302aabed',
+    width: 1220,
+    height: 1600,
+    format: 'webp',
+    resource_type: 'image',
+    created_at: '2024-08-06T07:22:55Z',
+    tags: [],
+    pages: 1,
+    bytes: 123798,
+    type: 'upload',
+    etag: 'e3f40956aa0e5568f2caa6a72c838891',
+    placeholder: false,
+    url: 'http://res.cloudinary.com/daqcahpo7/image/upload/v1722928975/h2bbqvyjtoniuppiqlnn.webp',
+    secure_url: 'https://res.cloudinary.com/daqcahpo7/image/upload/v1722928975/h2bbqvyjtoniuppiqlnn.webp',
+    asset_folder: '',
+    display_name: 'h2bbqvyjtoniuppiqlnn',
+    original_filename: 'shah-rukh-khan_filmfare_bollywoodtadkamasala_blogspot_com__3_1518023440',
+    api_key: '398183627549681'
+}

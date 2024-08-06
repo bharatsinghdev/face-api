@@ -8,6 +8,7 @@ import {
 } from "../globalData";
 import { CheckError } from "../utils/ErrorHandling";
 import { drawFaceRect } from "../utils/drawFaceRect";
+import faceApi from "../api/api";
 
 export const UploadFromWebcam = ({
   addFacePhotoCallback,
@@ -46,12 +47,6 @@ export const UploadFromWebcam = ({
   0;
 
   const fetchVideoInputDevices = async () => {
-    // navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(
-    //   (stream) => {
-    //     alert(stream);
-    //   },
-    //   (e) => {}
-    // );
     if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -113,27 +108,35 @@ export const UploadFromWebcam = ({
 
     return () => clearInterval(interval);
   });
-
+  const [name, setName] = useState("");
+  const [file, setFile] = useState(null);
   const handleSubmit = () => {
-    addFacePhotoCallback({
-      update() {
-        galleryRefetch();
-        countRefetch();
-        alert("Add Face Photo Success!");
-      },
-      onError(err) {
-        CheckError(err);
-      },
-      variables: {
-        photoData: previewImage,
-        faceDescriptor: faceDescriptor.toString(),
-      },
-    });
+    const base64Image = previewImage;
+
+    // Step 2: Convert base64 to Blob
+    const byteString = atob(base64Image.split(",")[1]);
+    const mimeString = base64Image.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
+
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("file", blob, "screenshot.png");
+      formData.append("faceDescriptor", fullDesc[0].descriptor);
+      let { data } = faceApi.upload(formData);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <div>
-      {JSON.stringify(inputDevices)}
       <select
         defaultValue="Select Webcam"
         style={{ width: 500 }}
@@ -206,6 +209,11 @@ export const UploadFromWebcam = ({
             style={{ width: "200px", height: "200px" }}
           />
           <div style={{ marginTop: "10px" }}>
+            <input
+              type="text"
+              placeholder="Name"
+              onChange={(e) => setName(e.target.value)}
+            />
             <button
               type="primary"
               onClick={handleSubmit}

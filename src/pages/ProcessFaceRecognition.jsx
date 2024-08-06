@@ -65,63 +65,63 @@ export default (props) => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   function capture() {
-  //     if (
-  //       typeof webcamRef.current !== "undefined" &&
-  //       webcamRef.current !== null &&
-  //       webcamRef.current.video.readyState === 4
-  //     ) {
-  //       const videoWidth = webcamRef.current.video.videoWidth;
-  //       const videoHeight = webcamRef.current.video.videoHeight;
+  useEffect(() => {
+    function capture() {
+      if (
+        typeof webcamRef.current !== "undefined" &&
+        webcamRef.current !== null &&
+        webcamRef.current.video.readyState === 4
+      ) {
+        const videoWidth = webcamRef.current.video.videoWidth;
+        const videoHeight = webcamRef.current.video.videoHeight;
 
-  //       // Set canvas height and width
-  //       canvasRef.current.width = videoWidth;
-  //       canvasRef.current.height = videoHeight;
+        // Set canvas height and width
+        canvasRef.current.width = videoWidth;
+        canvasRef.current.height = videoHeight;
 
-  //       // 4. TODO - Make Detections
-  //       // e.g. const obj = await net.detect(video);
+        // 4. TODO - Make Detections
+        // e.g. const obj = await net.detect(video);
 
-  //       // Draw mesh
-  //       getFullFaceDescription(webcamRef.current.getScreenshot(), inputSize)
-  //         .then((data) => {
-  //           setFullDesc(data);
-  //           setWaitText("");
-  //         })
-  //         .catch((err) => {
-  //           setWaitText(
-  //             "Preparing face matcher and device setup, please wait..."
-  //           );
-  //         });
-  //       const ctx = canvasRef.current.getContext("2d");
+        // Draw mesh
+        getFullFaceDescription(webcamRef.current.getScreenshot(), inputSize)
+          .then((data) => {
+            setFullDesc(data);
+            setWaitText("");
+          })
+          .catch((err) => {
+            setWaitText(
+              "Preparing face matcher and device setup, please wait..."
+            );
+          });
+        const ctx = canvasRef.current.getContext("2d");
 
-  //       drawRectAndLabelFace(fullDesc, faceMatcher, participants, ctx);
+        drawRectAndLabelFace(fullDesc, faceMatcher, participants, ctx);
 
-  //       if (!!fullDesc) {
-  //         console.log("Now got full desc");
-  //         fullDesc.map((desc) => {
-  //           const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
-  //           console.log(bestMatch);
-  //           if (bestMatch._label != "unknown") {
-  //             createTrxCallback({
-  //               variables: {
-  //                 attendanceID: props.match.params.attendanceID,
-  //                 studentID: bestMatch._label,
-  //               },
-  //             });
-  //             console.log("Saving in db now");
-  //           }
-  //         });
-  //       }
-  //     }
-  //   }
+        if (!!fullDesc) {
+          console.log("Now got full desc");
+          fullDesc.map((desc) => {
+            const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
+            console.log(bestMatch);
+            if (bestMatch._label != "unknown") {
+              createTrxCallback({
+                variables: {
+                  attendanceID: props.match.params.attendanceID,
+                  studentID: bestMatch._label,
+                },
+              });
+              console.log("Saving in db now");
+            }
+          });
+        }
+      }
+    }
 
-  //   let interval = setInterval(() => {
-  //     capture();
-  //   }, 700);
+    let interval = setInterval(() => {
+      capture();
+    }, 700);
 
-  //   return () => clearInterval(interval);
-  // });
+    return () => clearInterval(interval);
+  });
 
   const handleSelectWebcam = (value) => {
     setSelectedWebcam(value);
